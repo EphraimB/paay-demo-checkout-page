@@ -1,5 +1,7 @@
 FROM python:3.10.4
 
+RUN pip install mysql-connector-python
+
 WORKDIR /app
 
 COPY requirements.txt requirements.txt

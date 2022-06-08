@@ -8,12 +8,13 @@ app = Flask(__name__)
 db = mysql.connector.connect(
   host="localhost",
   user="root",
-  password="paayco"
+  password="admin@paayco",
+  database="paay"
 )
 
 @app.route('/')
 def index():
-    cursor = mysql.get_db().cursor()
+    cursor = db.cursor()
 
     cursor.execute("SELECT * from products")
 

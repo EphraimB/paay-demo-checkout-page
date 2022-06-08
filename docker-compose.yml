@@ -2,10 +2,10 @@ version: "3"
 services:
   web:
     build: .
+    links:
+      - db
     ports:
       - "5000:5000"
-    volumes:
-      - ./:/app
 
   db:
     image: mysql
@@ -13,24 +13,18 @@ services:
     container_name: mysql-db
     environment:
       - MYSQL_ROOT_PASSWORD=paayco
-      - MYSQL_USER=paay
-      - MYSQL_PASSWORD=123
     ports:
-      - 3306:3306
+      - "32000:3306"
     volumes:
-      - mysql:/var/lib/mysql
-      - mysql_config:/etc/mysql
+      - .:/docker-entrypoint-initdb.d/:ro
   phpmyadmin:
     image: phpmyadmin
     restart: always
     container_name: php-my-admin
     ports:
-      - 8081:80
+      - "8081:80"
     links:
       - db
     environment:
       PMA_HOST: mysql-db
       PMA_PORT: 3306
-volumes:
-  mysql:
-  mysql_config:

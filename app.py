@@ -1,16 +1,15 @@
 from flask import Flask, render_template
-from flaskext.mysql import MySQL
+import mysql.connector
 import datetime
 # import config
 
 app = Flask(__name__)
 
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'paayco'
-app.config['MYSQL_DATABASE_DB'] = 'products'
-app.config['MYSQL_DATABASE_HOST'] = 'db'
-
-mysql = MySQL(app)
+db = mysql.connector.connect(
+  host="localhost",
+  user="root",
+  password="paayco"
+)
 
 @app.route('/')
 def index():

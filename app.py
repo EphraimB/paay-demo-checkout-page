@@ -1,20 +1,19 @@
 from flask import Flask, render_template
-import mysql.connector
 import datetime
-# import config
+import config
 
 app = Flask(__name__)
 
-db = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  password="admin@paayco",
-  database="paay"
-)
+# db = mysql.connector.connect(
+#   host="localhost",
+#   user="root",
+#   password="admin@paayco",
+#   database="paay"
+# )
 
 @app.route('/')
 def index():
-    cursor = db.cursor()
+    cursor = config.db.cursor()
 
     cursor.execute("SELECT * from products")
 

@@ -12,4 +12,6 @@ def index():
 
     rows = cursor.fetchall()
 
-    return render_template('index.html', products = rows)
+    title = "Home"
+
+    return render_template('index.html', title = title, products = rows)

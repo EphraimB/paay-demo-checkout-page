@@ -17,3 +17,7 @@ def index():
 @app.route('/admin-login/')
 def login():
     return render_template('/admin-login/index.html')
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    return

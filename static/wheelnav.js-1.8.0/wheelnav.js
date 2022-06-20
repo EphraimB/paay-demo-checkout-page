@@ -1,20 +1,19 @@
-﻿///#source 1 1 /js/source/wheelnav.core.js
-/* ======================================================================================= */
-/*                                   wheelnav.js - v1.7.1                                  */
-/* ======================================================================================= */
-/* This is a small JavaScript library for animated SVG based wheel navigation.             */
-/* Requires Raphaël JavaScript Vector Library (http://dmitrybaranovskiy.github.io/raphael/)*/
-/* ======================================================================================= */
-/* Check http://wheelnavjs.softwaretailoring.net for samples.                              */
-/* Fork https://github.com/softwaretailoring/wheelnav for contribution.                    */
-/* ======================================================================================= */
-/* Copyright © 2014-2017 Gábor Berkesi (http://softwaretailoring.net)                      */
-/* Licensed under MIT (https://github.com/softwaretailoring/wheelnav/blob/master/LICENSE)  */
-/* ======================================================================================= */
+﻿/* ======================================================================================== */
+/*                                   wheelnav.js - v1.8.0                                   */
+/* ======================================================================================== */
+/* This is a small JavaScript library for animated SVG based wheel navigation.              */
+/* Requires Raphaël JavaScript Vector Library (https://dmitrybaranovskiy.github.io/raphael/)*/
+/* ======================================================================================== */
+/* Check https://wheelnavjs.softwaretailoring.net for samples.                              */
+/* Fork https://github.com/softwaretailoring/wheelnav for contribution.                     */
+/* ======================================================================================== */
+/* Copyright © 2014-2021 Gábor Berkesi (https://softwaretailoring.net)                      */
+/* Licensed under MIT (https://github.com/softwaretailoring/wheelnav/blob/master/LICENSE)   */
+/* ======================================================================================== */
 
-/* ======================================================================================= */
-/* Documentation: http://wheelnavjs.softwaretailoring.net/documentation/core.html          */
-/* ======================================================================================= */
+/* ======================================================================================== */
+/* Documentation: https://wheelnavjs.softwaretailoring.net/documentation/core.html          */
+/* ======================================================================================== */
 
 wheelnav = function (divId, raphael, divWidth, divHeight) {
 
@@ -48,8 +47,8 @@ wheelnav = function (divId, raphael, divWidth, divHeight) {
             }
         }
 
-        for (var i = 0; i < removeChildrens.length; i++) {
-            holderDiv.removeChild(removeChildrens[i]);
+        for (var j = 0; j < removeChildrens.length; j++) {
+            holderDiv.removeChild(removeChildrens[j]);
         }
 
         if (divWidth !== undefined &&
@@ -82,6 +81,9 @@ wheelnav = function (divId, raphael, divWidth, divHeight) {
     this.navAngle = 0;
     this.sliceAngle = null;
     this.titleRotateAngle = null;
+    this.titleCurved = false;
+    this.titleCurvedClockwise = null;
+    this.titleCurvedByRotateAngle = false;
     this.initTitleRotate = false;
     this.clickModeRotate = true;
     this.rotateRound = false;
@@ -99,6 +101,8 @@ wheelnav = function (divId, raphael, divWidth, divHeight) {
     this.cssMode = false;
     this.selectedToFront = true;
     this.selectedNavItemIndex = 0;
+    this.hoverEnable = true;
+    this.hoveredToFront = true;
 
     this.navItemCount = 0;
     this.navItemCountLabeled = false;
@@ -319,6 +323,10 @@ wheelnav.prototype.createWheel = function (titles, withSpread) {
 
             if (keynavigate !== null) {
                 thiswheelnav.navigateWheel(keynavigate);
+
+                if (thiswheelnav.navItems[keynavigate].navigateFunction !== null) {
+                    thiswheelnav.navItems[keynavigate].navigateFunction();
+                }
             }
         });
     }
@@ -408,7 +416,7 @@ wheelnav.prototype.navigateWheel = function (clicked) {
 
             navItem.currentRotateAngle -= rotationAngle;
             var currentAnimateTime;
-            if (this.animatetime != null) {
+            if (this.animatetime !== null) {
                 currentAnimateTime = this.animatetime;
             }
             else {
@@ -451,11 +459,6 @@ wheelnav.prototype.navigateWheel = function (clicked) {
         }
         this.spreader.setCurrentTransform(true);
     }
-
-    if (clicked !== null &&
-        this.navItems[clicked].navigateFunction !== null) {
-        this.navItems[clicked].navigateFunction();
-    }
 };
 
 wheelnav.prototype.spreadWheel = function () {
@@ -490,16 +493,21 @@ wheelnav.prototype.animateUnlock = function (force, withFinishFunction) {
         for (var f = 0; f < this.navItemCount; f++) {
             this.navItems[f].navSliceUnderAnimation = false;
             this.navItems[f].navTitleUnderAnimation = false;
+            this.navItems[f].navTitlePathUnderAnimation = false;
             this.navItems[f].navLineUnderAnimation = false;
             this.navItems[f].navSlice.stop();
             this.navItems[f].navLine.stop();
             this.navItems[f].navTitle.stop();
+            if (this.navItems[f].navTitlePath !== undefined) {
+                this.navItems[f].navTitlePath.stop();
+            }
         }
     }
     else {
         for (var i = 0; i < this.navItemCount; i++) {
             if (this.navItems[i].navSliceUnderAnimation === true ||
                 this.navItems[i].navTitleUnderAnimation === true ||
+                this.navItems[i].navTitlePathUnderAnimation === true ||
                 this.navItems[i].navLineUnderAnimation === true) {
                 return;
             }
@@ -537,6 +545,9 @@ wheelnav.prototype.getClickableSliceId = function (index) {
 wheelnav.prototype.getTitleId = function (index) {
     return "wheelnav-" + this.holderId + "-title-" + index;
 };
+wheelnav.prototype.getTitlePathId = function (index) {
+    return "wheelnav-" + this.holderId + "-titlepath-" + index;
+};
 wheelnav.prototype.getLineId = function (index) {
     return "wheelnav-" + this.holderId + "-line-" + index;
 };
@@ -550,12 +561,11 @@ wheelnav.prototype.getMarkerId = function () {
     return "wheelnav-" + this.holderId + "-marker";
 };
 
-///#source 1 1 /js/source/wheelnav.parse.js
 /* ======================================================================================= */
 /* Parse html5 data- attributes, the onmouseup events and anchor links                     */
 /* ======================================================================================= */
 /* ======================================================================================= */
-/* Documentation: http://wheelnavjs.softwaretailoring.net/documentation/html5.html         */
+/* Documentation: https://wheelnavjs.softwaretailoring.net/documentation/html5.html        */
 /* ======================================================================================= */
 
 wheelnav.prototype.parseWheel = function (holderDiv) {
@@ -640,7 +650,21 @@ wheelnav.prototype.parseWheel = function (holderDiv) {
             if (wheelnavTitleHeight !== null) {
                 this.titleHeight = Number(wheelnavTitleHeight);
             }
-
+            //data-wheelnav-titlecurved
+            var wheelnavTitleCurved = holderDiv.getAttribute("data-wheelnav-titlecurved");
+            if (wheelnavTitleCurved !== null) {
+                this.titleCurved = true;
+            }
+            //data-wheelnav-titlecurvedclockwise
+            var wheelnavTitleCurvedClockwise = holderDiv.getAttribute("data-wheelnav-titlecurvedclockwise");
+            if (wheelnavTitleCurvedClockwise !== null) {
+                this.titleCurvedClockwise = true;
+            }
+            //data-wheelnav-titlecurvedbyrotateangle
+            var wheelnavTitleCurvedByRotateAngle = holderDiv.getAttribute("data-wheelnav-titlecurvedbyrotateangle");
+            if (wheelnavTitleCurvedByRotateAngle !== null) {
+                this.titleCurvedByRotateAngle = true;
+            }
             //data-wheelnav-keynav
             var wheelnavKeynav = holderDiv.getAttribute("data-wheelnav-keynav");
             if (wheelnavKeynav !== null) {
@@ -720,6 +744,7 @@ wheelnav.prototype.parseWheel = function (holderDiv) {
                     for (var j = 0; j < holderDiv.children[i].children.length; j++) {
                         if (holderDiv.children[i].children[j].getAttribute('href') !== undefined) {
                             parsedNavItemsHref.push(holderDiv.children[i].children[j].getAttribute('href'));
+                            foundHref = true;
                         }
                     }
                     if (!foundHref) {
@@ -731,9 +756,9 @@ wheelnav.prototype.parseWheel = function (holderDiv) {
             if (parsedNavItems.length > 0) {
                 this.initWheel(parsedNavItems);
 
-                for (var i = 0; i < parsedNavItemsOnmouseup.length; i++) {
-                    this.navItems[i].navigateFunction = parsedNavItemsOnmouseup[i];
-                    this.navItems[i].navigateHref = parsedNavItemsHref[i];
+                for (var k = 0; k < parsedNavItemsOnmouseup.length; k++) {
+                    this.navItems[k].navigateFunction = parsedNavItemsOnmouseup[k];
+                    this.navItems[k].navigateHref = parsedNavItemsHref[k];
                 }
 
                 if (!onlyInit) {
@@ -743,25 +768,24 @@ wheelnav.prototype.parseWheel = function (holderDiv) {
         }
 
         var removeChildrens = [];
-        for (var i = 0; i < holderDiv.children.length; i++) {
-            if (holderDiv.children[i].localName !== "svg") {
-                removeChildrens.push(holderDiv.children[i]);
+        for (var l = 0; l < holderDiv.children.length; l++) {
+            if (holderDiv.children[l].localName !== "svg") {
+                removeChildrens.push(holderDiv.children[l]);
             }
         }
 
-        for (var i = 0; i < removeChildrens.length; i++) {
-            holderDiv.removeChild(removeChildrens[i]);
+        for (var m = 0; m < removeChildrens.length; m++) {
+            holderDiv.removeChild(removeChildrens[m]);
         }
     }
 };
 
 
-///#source 1 1 /js/source/wheelnav.navItem.js
 /* ======================================================================================= */
 /* Navigation item                                                                         */
 /* ======================================================================================= */
 /* ======================================================================================= */
-/* Documentation: http://wheelnavjs.softwaretailoring.net/documentation/navItem.html       */
+/* Documentation: https://wheelnavjs.softwaretailoring.net/documentation/navItem.html      */
 /* ======================================================================================= */
 
 wheelnavItem = function (wheelnav, title, itemIndex) {
@@ -792,6 +816,7 @@ wheelnavItem = function (wheelnav, title, itemIndex) {
 
     this.navSliceUnderAnimation = false;
     this.navTitleUnderAnimation = false;
+    this.navTitlePathUnderAnimation = false;
     this.navLineUnderAnimation = false;
 
     this.currentRotateAngle = 0;
@@ -849,6 +874,10 @@ wheelnavItem = function (wheelnav, title, itemIndex) {
     this.titleSpreadScale = null;
     this.sliceAngle = null;
     this.titleRotateAngle = null;
+
+    this.titleCurved = null;
+    this.titleCurvedClockwise = null;
+    this.titleCurvedByRotateAngle = null;
 
     //Default navitem styles
     this.styleNavItem();
@@ -970,12 +999,32 @@ wheelnavItem.prototype.createNavItem = function () {
     }
     //Title defined by text
     else {
-        this.navTitle = this.wheelnav.raphael.text(sliceInitPath.titlePosX, sliceInitPath.titlePosY, currentTitle.title);
+        if (this.titleCurved) {
+            this.navTitle = this.wheelnav.raphael.text(sliceInitPath.titlePosX, sliceInitPath.titlePosY, ".");
+            if (currentTitle.title !== "") {
+                this.addCurvedTitle(currentTitle.title);
+            }
+        }
+        else {
+            this.navTitle = this.wheelnav.raphael.text(sliceInitPath.titlePosX, sliceInitPath.titlePosY, currentTitle.title);
+        }
     }
 
-    this.navTitle.attr(this.titleAttr);
     this.navTitle.id = this.wheelnav.getTitleId(this.wheelItemIndex);
     this.navTitle.node.id = this.navTitle.id;
+    this.navTitle.attr(this.titleAttr);
+
+    //Tspan must be hide in case of curved text
+    if (this.titleCurved) {
+        var thisnode = document.getElementById(this.navTitle.node.id);
+        if (thisnode !== null) {
+            var tspans = thisnode.getElementsByTagName("tspan");
+            if (tspans.length > 0) {
+                tspans[0].setAttribute("fill", "transparent");
+                tspans[0].setAttribute("stroke", "transparent");
+            }
+        }
+    }
 
     //Set transforms
     this.navSliceCurrentTransformString = "";
@@ -986,7 +1035,7 @@ wheelnavItem.prototype.createNavItem = function () {
 
     this.navTitleCurrentTransformString = "";
     this.navTitleCurrentTransformString += this.getTitleRotateString(this.wheelnav.initTitleRotate);
-    if (this.initTransform.titleTransformString !== "") { this.navTitleCurrentTransformString += this.initTransform.titleTransformString; }
+    if (this.initTransform.titleTransformString !== "" && this.initTransform.titleTransformString !== undefined) { this.navTitleCurrentTransformString += this.initTransform.titleTransformString; }
     if (this.wheelnav.currentPercent < 0.05) {
         this.navTitleCurrentTransformString += ",s0.05";
     }
@@ -997,7 +1046,7 @@ wheelnavItem.prototype.createNavItem = function () {
     this.navSlice.attr({ transform: this.navSliceCurrentTransformString });
     this.navLine.attr({ transform: this.navLineCurrentTransformString });
     this.navTitle.attr({ transform: this.navTitleCurrentTransformString });
-    
+
     //Create item set
     this.navItem = this.wheelnav.raphael.set();
 
@@ -1032,20 +1081,58 @@ wheelnavItem.prototype.createNavItem = function () {
 
     if (this.enabled) {
         this.navItem.mouseup(function () {
+            if (thisNavItem.navigateFunction !== null) {
+                thisNavItem.navigateFunction();
+            }
+
             thisWheelNav.navigateWheel(thisItemIndex);
         });
-        this.navItem.mouseover(function () {
-            if (thisNavItem.hovered !== true) {
-                thisNavItem.hoverEffect(thisItemIndex, true);
-            }
-        });
-        this.navItem.mouseout(function () {
-            thisNavItem.hovered = false;
-            thisNavItem.hoverEffect(thisItemIndex, false);
-        });
+        if (this.wheelnav.hoverEnable) {
+            this.navItem.mouseover(function () {
+                if (thisNavItem.hovered !== true) {
+                    thisNavItem.hoverEffect(thisItemIndex, true);
+                }
+            });
+            this.navItem.mouseout(function () {
+                thisNavItem.hovered = false;
+                thisNavItem.hoverEffect(thisItemIndex, false);
+            });
+        }
     }
 
     this.setCurrentTransform(true, false);
+};
+
+wheelnavItem.prototype.addCurvedTitle = function (text) {
+
+    var pathString = [];
+    if (this.sliceInitPath.titlePathString !== undefined && this.sliceInitPath.titlePathString !== "") {
+        pathString = this.sliceInitPath.titlePathString;
+    }
+    else {
+        this.sliceHelper.titleRadius = this.wheelnav.wheelRadius * 0.63;
+        pathString = this.sliceHelper.getCurvedTitlePathString();
+    }
+ 
+    this.navTitle.node.id = this.wheelnav.getTitleId(this.wheelItemIndex);
+    var pathid = this.wheelnav.getTitlePathId(this.wheelItemIndex);
+    this.navTitlePath = this.wheelnav.raphael.path(pathString);
+    this.navTitlePath.attr({ fill: "transparent", stroke: "transparent" });
+    this.navTitlePath.node.id = pathid;
+
+    var thisnode = document.getElementById(this.navTitle.node.id);
+    var curvetextPath = window.document.createElementNS("http://www.w3.org/2000/svg", "textPath");
+    curvetextPath.setAttribute("id", pathid + "-text");
+    curvetextPath.setAttribute("href", "#" + pathid);
+    curvetextPath.setAttribute("startOffset", "50%");
+    curvetextPath.setAttribute("dominant-baseline", "middle");
+    curvetextPath.setAttribute("alignment-baseline", "middle");
+    curvetextPath.textContent = text;
+    thisnode.appendChild(curvetextPath);
+
+    if (!this.titleCurvedByRotateAngle) {
+        this.titleRotateAngle = -this.navAngle;
+    }
 };
 
 wheelnavItem.prototype.hoverEffect = function (hovered, isEnter) {
@@ -1078,12 +1165,16 @@ wheelnavItem.prototype.setCurrentTransform = function (locked, withFinishFunctio
     if (!this.wheelnav.clickModeRotate ||
         (!this.navSliceUnderAnimation &&
         !this.navTitleUnderAnimation &&
+        !this.navTitlePathUnderAnimation &&
         !this.navLineUnderAnimation)) {
 
         if (locked !== undefined &&
             locked === true) {
             this.navSliceUnderAnimation = true;
             this.navTitleUnderAnimation = true;
+            if (this.navTitlePath !== undefined) {
+                this.navTitlePathUnderAnimation = true;
+            }
             this.navLineUnderAnimation = true;
         }
 
@@ -1191,6 +1282,7 @@ wheelnavItem.prototype.setCurrentTransform = function (locked, withFinishFunctio
         //Set title
         var currentTitle = this.getCurrentTitle();
         var titleTransformAttr = {};
+        var titlePathTransformAttr = null;
 
         if (wheelnavTitle().isPathTitle(currentTitle.title)) {
             titleTransformAttr = {
@@ -1216,8 +1308,15 @@ wheelnavItem.prototype.setCurrentTransform = function (locked, withFinishFunctio
                 transform: this.navTitleCurrentTransformString
             };
 
-            if (currentTitle.title !== null) {
-                this.navTitle.attr({ text: currentTitle.title });
+            if (currentTitle.title !== null && currentTitle.title !== "") {
+                if (!this.titleCurved) {
+                    this.navTitle.attr({ text: currentTitle.title });
+                }
+                else if (slicePath.titlePathString !== undefined && slicePath.titlePathString !== "") {
+                    titlePathTransformAttr = {
+                        path: slicePath.titlePathString
+                    };
+                }
             }
         }
 
@@ -1237,6 +1336,12 @@ wheelnavItem.prototype.setCurrentTransform = function (locked, withFinishFunctio
             thisNavItem.navTitleUnderAnimation = false;
             thisWheelnav.animateUnlock(false, withFinishFunction);
         });
+        if (this.titleCurved && this.navTitlePath !== undefined) {
+            this.animTitlePath = Raphael.animation(titlePathTransformAttr, this.animatetime, this.animateeffect, function () {
+                thisNavItem.navTitlePathUnderAnimation = false;
+                thisWheelnav.animateUnlock(false, withFinishFunction);
+            });
+        }
 
         if (this.navClickableSlice !== null) {
             this.animClickableSlice = Raphael.animation(sliceClickableTransformAttr, this.animatetime, this.animateeffect);
@@ -1259,6 +1364,9 @@ wheelnavItem.prototype.setCurrentTransform = function (locked, withFinishFunctio
                 for (i = 0; i < this.wheelnav.navItemCount; i++) {
                     var navItemTitle = this.wheelnav.navItems[i];
                     navItemTitle.navTitle.animate(navItemTitle.animTitle.repeat(animateRepeatCount));
+                    if (navItemTitle.titleCurved && navItemTitle.navTitlePath !== undefined) {
+                        navItemTitle.navTitlePath.animate(navItemTitle.animTitlePath.repeat(animateRepeatCount));
+                    }
                 }
 
                 if (this.wheelnav.sliceClickablePathFunction !== null) {
@@ -1275,6 +1383,9 @@ wheelnavItem.prototype.setCurrentTransform = function (locked, withFinishFunctio
             this.navSlice.animate(this.animSlice.repeat(animateRepeatCount));
             this.navLine.animate(this.animLine.repeat(animateRepeatCount));
             this.navTitle.animate(this.animTitle.repeat(animateRepeatCount));
+            if (this.titleCurved && this.navTitlePath !== undefined) {
+                this.navTitlePath.animate(this.animTitlePath.repeat(animateRepeatCount));
+            }
 
             if (this.navClickableSlice !== null) {
                 this.navClickableSlice.animate(this.animClickableSlice.repeat(animateRepeatCount));
@@ -1322,10 +1433,19 @@ wheelnavItem.prototype.refreshNavItem = function (withPathAndTransform) {
         }
     }
     else if (this.hovered) {
-        this.navSlice.attr(this.sliceHoverAttr).toFront();
-        this.navLine.attr(this.lineHoverAttr).toFront();
-        this.navTitle.attr(this.titleHoverAttr).toFront();
-        if (this.navClickableSlice !== null) { this.navClickableSlice.attr(this.sliceClickableHoverAttr).toFront(); }
+        if (this.wheelnav.hoverEnable) {
+            this.navSlice.attr(this.sliceHoverAttr);
+            this.navLine.attr(this.lineHoverAttr);
+            this.navTitle.attr(this.titleHoverAttr);
+            if (this.navClickableSlice !== null) { this.navClickableSlice.attr(this.sliceClickableHoverAttr); }
+
+            if (this.wheelnav.hoveredToFront) {
+                this.navSlice.toFront();
+                this.navLine.toFront();
+                this.navTitle.toFront();
+            }
+            if (this.navClickableSlice !== null) { this.navClickableSlice.toFront(); }
+        }
     }
     else {
         this.navSlice.attr(this.slicePathAttr);
@@ -1358,6 +1478,10 @@ wheelnavItem.prototype.setWheelSettings = function (force) {
     if (this.wheelnav.titleHoverAttr !== null) { this.titleHoverAttr = JSON.parse(JSON.stringify(this.wheelnav.titleHoverAttr)); }
     if (this.wheelnav.titleSelectedAttr !== null) { this.titleSelectedAttr = JSON.parse(JSON.stringify(this.wheelnav.titleSelectedAttr)); }
     if (this.wheelnav.titleRotateAngle !== null && this.titleRotateAngle === null) { this.titleRotateAngle = this.wheelnav.titleRotateAngle; }
+    if (this.wheelnav.titleCurved !== null && this.titleCurved === null) { this.titleCurved = this.wheelnav.titleCurved; }
+    if (this.wheelnav.titleCurvedClockwise !== null && this.titleCurvedClockwise === null) { this.titleCurvedClockwise = this.wheelnav.titleCurvedClockwise; }
+    else if (this.titleCurvedClockwise === null) { this.titleCurvedClockwise = !this.wheelnav.clockwise; }
+    if (this.wheelnav.titleCurvedByRotateAngle !== null && this.titleCurvedByRotateAngle === null) { this.titleCurvedByRotateAngle = this.wheelnav.titleCurvedByRotateAngle; }
 
     // Size
     if (this.wheelnav.titleWidth !== null && this.titleWidth === null) { this.titleWidth = this.wheelnav.titleWidth; }
@@ -1461,7 +1585,8 @@ wheelnavItem.prototype.initPathsAndTransforms = function () {
     this.sliceHelper.startAngle = this.baseAngle;
     this.sliceHelper.sliceAngle = this.sliceAngle;
     this.sliceHelper.itemIndex = this.itemIndex;
-
+    this.sliceHelper.titleCurvedClockwise = this.titleCurvedClockwise;
+    
     //Set min/max sliecePaths
     //Default - min
     this.slicePathMin = this.slicePathFunction(this.sliceHelper, this.minPercent, this.slicePathCustom);
@@ -1794,12 +1919,11 @@ wheelnavTitle.prototype.getTitleSizeTransform = function (titlewidth, titleheigh
     return transformAttr;
 };
 
-///#source 1 1 /js/source/wheelnav.style.js
 /* ======================================================================================= */
 /* Default styles and available css classes                                                */
 /* ======================================================================================= */
 /* ======================================================================================= */
-/* Documentation: http://wheelnavjs.softwaretailoring.net/documentation/css3.html          */
+/* Documentation: https://wheelnavjs.softwaretailoring.net/documentation/css3.html         */
 /* ======================================================================================= */
 
 wheelnav.prototype.styleWheel = function () {
@@ -1860,7 +1984,7 @@ wheelnavItem.prototype.styleNavItem = function () {
     this.sliceClickablePathAttr = { fill: "#FFF", stroke: "#FFF", "stroke-width": 0, cursor: 'pointer', "fill-opacity": 0.01 };
     this.sliceClickableHoverAttr = { stroke: "#FFF", "stroke-width": 0, cursor: 'pointer' };
     this.sliceClickableSelectedAttr = { stroke: "#FFF", "stroke-width": 0, cursor: 'default' };
-}
+};
 
 wheelnav.prototype.getSliceCssClass = function (index, subclass) {
     return "wheelnav-" + this.holderId + "-slice-" + subclass + "-" + index;
@@ -1881,12 +2005,11 @@ wheelnav.prototype.getMarkerCssClass = function () {
     return "wheelnav-" + this.holderId + "-marker";
 };
 
-///#source 1 1 /js/source/wheelnav.pathHelper.js
 /* ======================================================================================= */
-/* Slice path helper functions                                                                  */
+/* Slice path helper functions                                                             */
 /* ======================================================================================= */
 /* ======================================================================================= */
-/* Documentation: http://wheelnavjs.softwaretailoring.net/documentation/slicePath.html     */
+/* Documentation: https://wheelnavjs.softwaretailoring.net/documentation/slicePath.html    */
 /* ======================================================================================= */
 
 var pathHelper = function () {
@@ -1903,6 +2026,7 @@ var pathHelper = function () {
     this.titlePosY = 0;
     this.titleRadius = 0;
     this.titleTheta = 0;
+    this.titleAngle = 0;
     this.custom = null;
     this.centerX = 0;
     this.centerY = 0;
@@ -1910,6 +2034,7 @@ var pathHelper = function () {
     this.itemIndex = 0;
     this.navItemCount = 0;
     this.navAngle = 0;
+    this.titleCurvedClockwise = false;
 
     this.setBaseValue = function (percent, custom) {
 
@@ -1935,11 +2060,13 @@ var pathHelper = function () {
             }
             if (custom.titleSliceAnglePercent !== null) {
                 this.titleTheta = this.getTheta(this.startAngle + this.sliceAngle * custom.titleSliceAnglePercent);
+                this.titleAngle = this.startAngle + this.sliceAngle * custom.titleSliceAnglePercent;
             }
         }
         else {
             this.titleRadius = this.sliceRadius * 0.5;
             this.titleTheta = this.middleTheta;
+            this.titleAngle = this.middleAngle;
         }
 
         this.setTitlePos();
@@ -1962,26 +2089,46 @@ var pathHelper = function () {
         return ["M", this.getX(angle, length), this.getY(angle, length)];
     };
 
+    this.MoveToXY = function (posX, posY) {
+        return ["M", posX, posY];
+    };
+
     this.MoveToCenter = function () {
         return ["M", this.centerX, this.centerY];
     };
 
     this.LineTo = function (angle, length, angleY, lengthY) {
-        if (angleY === undefined) {
-            angleY = angle;
-        }
-        if (lengthY === undefined) {
-            lengthY = length;
-        }
+        if (angleY === undefined) { angleY = angle; }
+        if (lengthY === undefined) { lengthY = length; }
         return ["L", this.getX(angle, length), this.getY(angleY, lengthY)];
     };
 
+    this.LineToXY = function (posX, posY) {
+        return ["L", posX, posY];
+    };
+
     this.ArcTo = function (arcRadius, angle, length) {
-        return ["A", arcRadius, arcRadius, 0, 0, 1, this.getX(angle, length), this.getY(angle, length)]
+        return ["A", arcRadius, arcRadius, 0, 0, 1, this.getX(angle, length), this.getY(angle, length)];
+    };
+
+    this.ArcToXY = function (arcRadius, posX, posY) {
+        return ["A", arcRadius, arcRadius, 0, 0, 1, posX, posY];
     };
 
     this.ArcBackTo = function (arcRadius, angle, length) {
-        return ["A", arcRadius, arcRadius, 0, 0, 0, this.getX(angle, length), this.getY(angle, length)]
+        return ["A", arcRadius, arcRadius, 0, 0, 0, this.getX(angle, length), this.getY(angle, length)];
+    };
+
+    this.ArcBackToXY = function (arcRadius, posX, posY) {
+        return ["A", arcRadius, arcRadius, 0, 0, 0, posX, posY];
+    };
+
+    this.CubicBezierTo = function (assist1Angle, assist1Length, assist2Angle, assist2Length, endAngle, endLength) {
+        return ["C", this.getX(assist1Angle, assist1Length), this.getY(assist1Angle, assist1Length), this.getX(assist2Angle, assist2Length), this.getY(assist2Angle, assist2Length), this.getX(endAngle, endLength), this.getY(endAngle, endLength)];
+    };
+   
+    this.CubicBezierToXY = function (assist1X, assist1Y, assist2X, assist2Y, endX, endY) {
+        return ["C", assist1X, assist1Y, assist2X, assist2Y, endX, endY];
     };
 
     this.StartSpreader = function (spreaderPathString, angle, length) {
@@ -1992,6 +2139,21 @@ var pathHelper = function () {
             spreaderPathString.push(this.MoveToCenter());
             spreaderPathString.push(this.LineTo(angle, length));
         }
+    };
+
+    this.getCurvedTitlePathString = function () {
+        var startAngle = this.titleAngle - (this.sliceAngle / 2);
+        var endAngle = this.titleAngle + (this.sliceAngle / 2);
+        var pathString = [];
+        if (this.titleCurvedClockwise) {
+            pathString.push(this.MoveTo(startAngle, this.titleRadius));
+            pathString.push(this.ArcTo(this.titleRadius, endAngle, this.titleRadius));
+        }
+        else {
+            pathString.push(this.MoveTo(endAngle, this.titleRadius));
+            pathString.push(this.ArcBackTo(this.titleRadius, startAngle, this.titleRadius));
+        }
+        return pathString;
     };
 
     this.Close = function () {
@@ -2056,13 +2218,11 @@ var markerPathCustomization = function () {
 };
 
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.js
-///#source 1 1 /js/source/slicePath/wheelnav.slicePathStart.js
 /* ======================================================================================= */
 /* Slice path definitions.                                                                 */
 /* ======================================================================================= */
 /* ======================================================================================= */
-/* Documentation: http://wheelnavjs.softwaretailoring.net/documentation/slicePath.html     */
+/* Documentation: https://wheelnavjs.softwaretailoring.net/documentation/slicePath.html    */
 /* ======================================================================================= */
 
 slicePath = function () {
@@ -2070,12 +2230,14 @@ slicePath = function () {
     this.NullSlice = function (helper, percent, custom) {
 
         helper.setBaseValue(percent, custom);
+        titlePathString = helper.getCurvedTitlePathString();
 
         return {
             slicePathString: "",
             linePathString: "",
             titlePosX: helper.titlePosX,
-            titlePosY: helper.titlePosY
+            titlePosY: helper.titlePosY,
+            titlePathString: titlePathString
         };
     };
 
@@ -2085,16 +2247,17 @@ slicePath = function () {
 
         slicePathString = [helper.MoveToCenter(),
                  helper.Close()];
+        titlePathString = helper.getCurvedTitlePathString();
 
         return {
             slicePathString: slicePathString,
             linePathString: slicePathString,
             titlePosX: helper.centerX,
-            titlePosY: helper.centerY
+            titlePosY: helper.centerY,
+            titlePathString: titlePathString
         };
     };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.Pie.js
 
 this.PieSliceCustomization = function () {
 
@@ -2116,18 +2279,24 @@ this.PieSlice = function (helper, percent, custom) {
 
     var arcBaseRadius = helper.sliceRadius * custom.arcBaseRadiusPercent;
     var arcRadius = helper.sliceRadius * custom.arcRadiusPercent;
-
-    slicePathString = [helper.MoveTo(helper.middleAngle, custom.startRadiusPercent * helper.sliceRadius),
-                 helper.LineTo(helper.startAngle, arcBaseRadius),
-                 helper.ArcTo(arcRadius, helper.middleAngle, arcBaseRadius),
-                 helper.ArcTo(arcRadius, helper.endAngle, arcBaseRadius),
-                 helper.Close()];
     
+    slicePathString = [];
+    slicePathString.push(helper.MoveTo(helper.middleAngle, custom.startRadiusPercent * helper.sliceRadius));
+    slicePathString.push(helper.LineTo(helper.startAngle, arcBaseRadius));
+    if (helper.sliceAngle > 180) {
+        slicePathString.push(helper.ArcTo(arcRadius, helper.middleAngle, arcBaseRadius));
+    }
+    slicePathString.push(helper.ArcTo(arcRadius, helper.endAngle, arcBaseRadius));
+    slicePathString.push(helper.Close());
+
+    titlePathString = helper.getCurvedTitlePathString();
+
     return {
         slicePathString: slicePathString,
         linePathString: "",
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
@@ -2146,11 +2315,11 @@ this.FlowerSlice = function (helper, percent, custom) {
         slicePathString: slicePath.slicePathString,
         linePathString: "",
         titlePosX: slicePath.titlePosX,
-        titlePosY: slicePath.titlePosY
+        titlePosY: slicePath.titlePosY,
+        titlePathString: slicePath.titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.PieArrow.js
 
 this.PieArrowSliceCustomization = function () {
 
@@ -2184,11 +2353,14 @@ this.PieArrowSlice = function (helper, percent, custom) {
                  helper.ArcTo(r, helper.endAngle, r),
                  helper.Close()];
 
+    titlePathString = helper.getCurvedTitlePathString();
+
     return {
         slicePathString: slicePathString,
         linePathString: "",
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
@@ -2205,11 +2377,11 @@ this.PieArrowBasePieSlice = function (helper, percent, custom) {
         slicePathString: slicePath.slicePathString,
         linePathString: "",
         titlePosX: slicePath.titlePosX,
-        titlePosY: slicePath.titlePosY
+        titlePosY: slicePath.titlePosY,
+        titlePathString: slicePath.titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.Donut.js
 
 this.DonutSliceCustomization = function () {
 
@@ -2243,15 +2415,17 @@ this.DonutSlice = function (helper, percent, custom) {
                  helper.ArcBackTo(minRadius, helper.startAngle, minRadius),
                  helper.Close()];
 
+    titlePathString = helper.getCurvedTitlePathString();
+
     return {
         slicePathString: slicePathString,
         linePathString: "",
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.Cog.js
 
 this.CogSliceCustomization = function () {
 
@@ -2336,11 +2510,14 @@ this.CogSlice = function (helper, percent, custom) {
             helper.Close()];
     }
 
+    titlePathString = helper.getCurvedTitlePathString();
+
     return {
         slicePathString: slicePathString,
         linePathString: "",
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
@@ -2358,11 +2535,11 @@ this.CogBasePieSlice = function (helper, percent, custom) {
         slicePathString: slicePath.slicePathString,
         linePathString: "",
         titlePosX: slicePath.titlePosX,
-        titlePosY: slicePath.titlePosY
+        titlePosY: slicePath.titlePosY,
+        titlePathString: slicePath.titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.Star.js
 
 this.StarSliceCustomization = function () {
 
@@ -2401,11 +2578,14 @@ this.StarSlice = function (helper, percent, custom) {
                      helper.Close()];
     }
 
+    titlePathString = helper.getCurvedTitlePathString();
+
     return {
         slicePathString: slicePathString,
         linePathString: "",
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
@@ -2424,11 +2604,11 @@ this.StarBasePieSlice = function (helper, percent, custom) {
         slicePathString: slicePath.slicePathString,
         linePathString: "",
         titlePosX: slicePath.titlePosX,
-        titlePosY: slicePath.titlePosY
+        titlePosY: slicePath.titlePosY,
+        titlePathString: slicePath.titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.Menu.js
 
 this.MenuSliceCustomization = function () {
 
@@ -2481,11 +2661,14 @@ this.MenuSlice = function (helper, percent, custom) {
         }
     }
 
+    titlePathString = helper.getCurvedTitlePathString();
+
     return {
         slicePathString: slicePathString,
         linePathString: linePathString,
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
@@ -2503,7 +2686,8 @@ this.MenuSliceSelectedLine = function (helper, percent, custom) {
         slicePathString: slicePath.slicePathString,
         linePathString: slicePath.linePathString,
         titlePosX: slicePath.titlePosX,
-        titlePosY: slicePath.titlePosY
+        titlePosY: slicePath.titlePosY,
+        titlePathString: slicePath.titlePathString
     };
 };
 
@@ -2515,11 +2699,11 @@ this.MenuSliceWithoutLine = function (helper, percent, custom) {
         slicePathString: slicePath.slicePathString,
         linePathString: "",
         titlePosX: slicePath.titlePosX,
-        titlePosY: slicePath.titlePosY
+        titlePosY: slicePath.titlePosY,
+        titlePathString: slicePath.titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.Line.js
 
 this.LineSlice = function (helper, percent, custom) {
 
@@ -2565,15 +2749,17 @@ this.LineSlice = function (helper, percent, custom) {
         }
     }
 
+    titlePathString = helper.getCurvedTitlePathString();
+
     return {
         slicePathString: slicePathString,
         linePathString: "",
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.Eye.js
 
 this.EyeSliceCustomization = function () {
 
@@ -2610,15 +2796,17 @@ this.EyeSlice = function (helper, percent, custom) {
                  helper.ArcTo(r, endAngle, r),
                  helper.Close()];
 
+    titlePathString = helper.getCurvedTitlePathString();
+
     return {
         slicePathString: slicePathString,
         linePathString: "",
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.Wheel.js
 
 this.WheelSlice = function (helper, percent, custom) {
 
@@ -2668,15 +2856,17 @@ this.WheelSlice = function (helper, percent, custom) {
 
     helper.setTitlePos();
 
+    titlePathString = helper.getCurvedTitlePathString();
+
     return {
         slicePathString: slicePathString,
         linePathString: linePathString,
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.OuterStroke.js
 
 this.OuterStrokeSlice = function (helper, percent, custom) {
 
@@ -2709,15 +2899,17 @@ this.OuterStrokeSlice = function (helper, percent, custom) {
 
     helper.setTitlePos();
 
+    titlePathString = helper.getCurvedTitlePathString();
+
     return {
         slicePathString: slicePathString,
         linePathString: linePathString,
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.Tab.js
 
 this.TabSlice = function (helper, percent, custom) {
 
@@ -2732,21 +2924,26 @@ this.TabSlice = function (helper, percent, custom) {
     titlePosX = x;
     titlePosY = itemIndex * itemSize + y + (itemSize / 2) - rOriginal;
 
-    slicePathString = [["M", x - (itemSize / 2), itemIndex * itemSize + y - rOriginal],
-                 ["L", (itemSize / 2) + x, itemIndex * itemSize + y - rOriginal],
-                 ["L", (itemSize / 2) + x, (itemIndex + 1) * itemSize + y - rOriginal],
-                 ["L", x - (itemSize / 2), (itemIndex + 1) * itemSize + y - rOriginal],
-                 ["z"]];
+    slicePathString = [];
+    slicePathString.push(helper.MoveToXY(x - (itemSize / 2), itemIndex * itemSize + y - rOriginal));
+    slicePathString.push(helper.LineToXY((itemSize / 2) + x, itemIndex * itemSize + y - rOriginal));
+    slicePathString.push(helper.LineToXY((itemSize / 2) + x, (itemIndex + 1) * itemSize + y - rOriginal));
+    slicePathString.push(helper.LineToXY(x - (itemSize / 2), (itemIndex + 1) * itemSize + y - rOriginal));
+    slicePathString.push(helper.Close());
+
+    titlePathString = [];
+    titlePathString.push(helper.MoveToXY(x - (itemSize / 2), (itemIndex + 1) * itemSize + y - rOriginal));
+    titlePathString.push(helper.ArcToXY(itemSize * 2, (itemSize / 2) + x, itemIndex * itemSize + y - rOriginal));
 
     return {
         slicePathString: slicePathString,
         linePathString: "",
         titlePosX: titlePosX,
-        titlePosY: titlePosY
+        titlePosY: titlePosY,
+        titlePathString: titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.YinYang.js
 
 this.YinYangSlice = function (helper, percent, custom) {
 
@@ -2764,15 +2961,18 @@ this.YinYangSlice = function (helper, percent, custom) {
     titlePosX = helper.getX(helper.startAngle, r / 2);
     titlePosY = helper.getY(helper.startAngle, r / 2);
 
+    titlePathString = [helper.MoveToCenter(),
+                 helper.ArcTo(r / 4, helper.startAngle + helper.sliceAngle * 0.2, r * 0.8)];
+
     return {
         slicePathString: slicePathString,
         linePathString: slicePathString,
         titlePosX: titlePosX,
-        titlePosY: titlePosY
+        titlePosY: titlePosY,
+        titlePathString: titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.Web.js
 
 this.WebSlice = function (helper, percent, custom) {
 
@@ -2799,15 +2999,17 @@ this.WebSlice = function (helper, percent, custom) {
                  helper.LineTo(helper.endAngle, r * 0.95),
                  helper.Close()];
 
+    titlePathString = helper.getCurvedTitlePathString();
+
     return {
         slicePathString: "",
         linePathString: linePathString,
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.Winter.js
 
 this.WinterSliceCustomization = function () {
 
@@ -2854,15 +3056,17 @@ this.WinterSlice = function (helper, percent, custom) {
                  helper.MoveTo(borderAngle3, arcRadius / 2),
                  helper.LineTo(parallelAngle2, arcRadius)];
 
+    titlePathString = helper.getCurvedTitlePathString();
+
     return {
         slicePathString: slicePathString,
         linePathString: linePathString,
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePath.Tutorial.js
 
 this.TutorialSliceCustomization = function () {
 
@@ -2884,21 +3088,46 @@ this.TutorialSlice = function (helper, percent, custom) {
     helper.setBaseValue(percent, custom);
 
     slicePathString = [];
+    titlePathString = [];
 
     slicePathString.push(helper.MoveToCenter());
+    titlePathRadius1 = helper.titleRadius;
+    titlePathRadius2 = helper.titleRadius;
+    titlePathEndangle = helper.startAngle;
+    titlePathStartRadius = 0;
+
     if (custom.isMoveTo === true) {
         slicePathString.push(helper.MoveTo(helper.middleAngle, helper.sliceRadius / 4));
+        titlePathRadius1 *= 1.05;
+        titlePathRadius2 *= 0.95;
+        titlePathStartRadius += helper.sliceRadius / 16;
+        titlePathEndangle = helper.startAngle + (helper.sliceAngle / 8);
     }
     if (custom.isLineTo) {
         slicePathString.push(helper.LineTo(helper.startAngle, helper.sliceRadius));
+        titlePathRadius1 *= 1.1;
+        titlePathRadius2 *= 0.9;
+        titlePathStartRadius += helper.sliceRadius / 16;
+        titlePathEndangle = helper.startAngle + (helper.sliceAngle / 4);
     }
     if (custom.isArcTo) {
         slicePathString.push(helper.ArcTo(helper.sliceRadius, helper.middleAngle, helper.sliceRadius));
+        titlePathRadius1 *= 1.2;
+        titlePathRadius2 *= 0.8;
+        titlePathStartRadius += helper.sliceRadius / 8;
+        titlePathEndangle = helper.middleAngle - (helper.sliceAngle / 8);
     }
     if (custom.isArcBackTo) {
         slicePathString.push(helper.ArcBackTo(helper.sliceRadius, helper.endAngle, helper.sliceRadius));
+        titlePathRadius1 *= 1.3;
+        titlePathRadius2 *= 0.7;
+        titlePathStartRadius += helper.sliceRadius / 8;
+        titlePathEndangle = helper.endAngle;
     }
     slicePathString.push(helper.Close());
+
+    titlePathString.push(helper.MoveTo(helper.startAngle, titlePathStartRadius));
+    titlePathString.push(helper.CubicBezierTo(helper.middleAngle - (helper.sliceAngle / 8), titlePathRadius1, helper.middleAngle + (helper.sliceAngle / 8), titlePathRadius2, titlePathEndangle, helper.sliceRadius));
 
     linePathString = [helper.MoveToCenter(),
                  helper.LineTo(helper.startAngle, helper.sliceRadius),
@@ -2910,24 +3139,19 @@ this.TutorialSlice = function (helper, percent, custom) {
         slicePathString: slicePathString,
         linePathString: linePathString,
         titlePosX: helper.titlePosX,
-        titlePosY: helper.titlePosY
+        titlePosY: helper.titlePosY,
+        titlePathString: titlePathString
     };
 };
 
-///#source 1 1 /js/source/slicePath/wheelnav.slicePathEnd.js
 
     return this;
 };
-
-
-
-
-///#source 1 1 /js/source/wheelnav.sliceTransform.js
 /* ======================================================================================== */
 /* Slice transform definitions                                                              */
 /* ======================================================================================== */
 /* ======================================================================================== */
-/* Documentation: http://wheelnavjs.softwaretailoring.net/documentation/sliceTransform.html */
+/* Documentation: https://wheelnavjs.softwaretailoring.net/documentation/sliceTransform.html*/
 /* ======================================================================================== */
 
 
@@ -3084,13 +3308,11 @@ var sliceTransformCustomization = function () {
 
 
 
-///#source 1 1 /js/source/spreader/wheelnav.spreader.js
-///#source 1 1 /js/source/spreader/wheelnav.spreader.core.js
 /* ======================================================================================= */
 /* Spreader of wheel                                                                       */
 /* ======================================================================================= */
 /* ======================================================================================= */
-/* Documentation: http://wheelnavjs.softwaretailoring.net/documentation/spreader.html      */
+/* Documentation: https://wheelnavjs.softwaretailoring.net/documentation/spreader.html     */
 /* ======================================================================================= */
 
 spreader = function (wheelnav) {
@@ -3279,7 +3501,6 @@ spreader.prototype.setCurrentTransform = function (withoutAnimate) {
     }
 };
 
-///#source 1 1 /js/source/spreader/wheelnav.spreaderPathStart.js
 /* ======================================================================================= */
 /* Spreader path definitions.                                                              */
 /* ======================================================================================= */
@@ -3303,7 +3524,6 @@ spreaderPath = function () {
 
 
 
-///#source 1 1 /js/source/spreader/wheelnav.spreaderPath.Pie.js
 
 this.PieSpreaderCustomization = function () {
 
@@ -3339,7 +3559,6 @@ this.PieSpreader = function (helper, percent, custom) {
     };
 };
 
-///#source 1 1 /js/source/spreader/wheelnav.spreaderPath.Star.js
 
 this.StarSpreaderCustomization = function () {
 
@@ -3389,7 +3608,6 @@ this.StarSpreader = function (helper, percent, custom) {
 };
 
 
-///#source 1 1 /js/source/spreader/wheelnav.spreaderPath.AntiStar.js
 
 this.AntiStarSpreaderCustomization = function () {
 
@@ -3445,13 +3663,12 @@ this.AntiStarSpreader = function (helper, percent, custom) {
 };
 
 
-///#source 1 1 /js/source/spreader/wheelnav.spreaderPath.Flower.js
 
 this.FlowerSpreaderCustomization = function () {
 
     var custom = new spreaderPathCustomization();
-    custom.minRadiusPercent = 0.63
-    custom.menuRadius = 7;;
+    custom.minRadiusPercent = 0.63;
+    custom.menuRadius = 7;
 
     return custom;
 };
@@ -3504,7 +3721,6 @@ this.FlowerSpreader = function (helper, percent, custom) {
 };
 
 
-///#source 1 1 /js/source/spreader/wheelnav.spreaderPath.Holder.js
 
 this.HolderSpreaderCustomization = function () {
 
@@ -3564,7 +3780,6 @@ this.HolderSpreader = function (helper, percent, custom) {
 };
 
 
-///#source 1 1 /js/source/spreader/wheelnav.spreaderPath.Line.js
 
 this.LineSpreaderCustomization = function () {
 
@@ -3613,21 +3828,14 @@ this.LineSpreader = function (helper, percent, custom) {
 };
 
 
-///#source 1 1 /js/source/spreader/wheelnav.spreaderPathEnd.js
 
     return this;
 };
-
-
-
-
-///#source 1 1 /js/source/marker/wheelnav.marker.js
-///#source 1 1 /js/source/marker/wheelnav.marker.core.js
 /* ======================================================================================= */
 /* Marker of wheel                                                                         */
 /* ======================================================================================= */
 /* ======================================================================================= */
-/* Documentation: http://wheelnavjs.softwaretailoring.net/documentation/marker.html        */
+/* Documentation: https://wheelnavjs.softwaretailoring.net/documentation/marker.html       */
 /* ======================================================================================= */
 
 marker = function (wheelnav) {
@@ -3695,7 +3903,6 @@ marker.prototype.setCurrentTransform = function (navAngle) {
 
 
 
-///#source 1 1 /js/source/marker/wheelnav.markerPathStart.js
 /* ======================================================================================= */
 /* Marker path definitions.                                                                */
 /* ======================================================================================= */
@@ -3719,7 +3926,6 @@ markerPath = function () {
 
 
 
-///#source 1 1 /js/source/marker/wheelnav.markerPath.Triangle.js
 
 this.TriangleMarkerCustomization = function () {
 
@@ -3756,7 +3962,6 @@ this.TriangleMarker = function (helper, percent, custom) {
 };
 
 
-///#source 1 1 /js/source/marker/wheelnav.markerPath.PieLine.js
 
 this.PieLineMarkerCustomization = function () {
 
@@ -3799,7 +4004,6 @@ this.PieLineMarker = function (helper, percent, custom) {
 
 
 
-///#source 1 1 /js/source/marker/wheelnav.markerPath.Menu.js
 
 this.MenuMarkerCustomization = function () {
 
@@ -3842,7 +4046,6 @@ this.MenuMarker = function (helper, percent, custom) {
 };
 
 
-///#source 1 1 /js/source/marker/wheelnav.markerPath.Line.js
 
 this.LineMarkerCustomization = function () {
 
@@ -3876,7 +4079,6 @@ this.LineMarker = function (helper, percent, custom) {
 };
 
 
-///#source 1 1 /js/source/marker/wheelnav.markerPath.Drop.js
 
 this.DropMarkerCustomization = function () {
 
@@ -3919,20 +4121,14 @@ this.DropMarker = function (helper, percent, custom) {
 };
 
 
-///#source 1 1 /js/source/marker/wheelnav.markerPathEnd.js
 
     return this;
 };
-
-
-
-
-///#source 1 1 /js/source/wheelnav.colorPalettes.js
 /* ======================================================================================== */
-/* Color palettes for slices from http://www.colourlovers.com                               */
+/* Color palettes for slices from https://www.colourlovers.com                              */
 /* ======================================================================================== */
 /* ======================================================================================== */
-/* Documentation: http://wheelnavjs.softwaretailoring.net/documentation/colorPalettes.html  */
+/* Documentation: https://wheelnavjs.softwaretailoring.net/documentation/colorPalettes.html */
 /* ======================================================================================== */
 
 var colorpalette = {

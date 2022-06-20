@@ -12,6 +12,8 @@ def index():
 
     rows = cursor.fetchall()
 
-    title = "Home"
+    return render_template('index.html', products = rows)
 
-    return render_template('index.html', title = title, products = rows)
+@app.route('/admin-login/')
+def login():
+    return render_template('/admin-login/index.html')

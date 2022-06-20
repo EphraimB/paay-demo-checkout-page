@@ -1,10 +1,10 @@
 <html>
     <head>
         <title>{% block title %}{% endblock %}</title>
-        <link rel="stylesheet" href="{{url_for('static', filename='bootstrap-5.2.0-beta1-dist/css/bootstrap.css')}}">
-        <script src="{{url_for('static', filename='/bootstrap-5.2.0-beta1-dist/js/bootstrap.js')}}"></script>
-        <script src="{{url_for('static', filename='/wheelnav.js-1.7.1/raphael.min.js')}}"></script>
-        <script src="{{url_for('static', filename='/wheelnav.js-1.7.1/wheelnav.js')}}"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-5.2.0-beta1-dist/css/bootstrap.css') }}">
+        <script src="{{ url_for('static', filename='bootstrap-5.2.0-beta1-dist/js/bootstrap.js') }}"></script>
+        <script src="{{ url_for('static', filename='wheelnav.js-1.8.0/raphael.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='wheelnav.js-1.8.0/wheelnav.js') }}"></script>
     </head>
     <body>
         <nav>
@@ -12,18 +12,18 @@
                 data-wheelnav-colors="#ADD8E6"
                 data-wheelnav-slicepath="DonutSlice"
                 data-wheelnav-navangle="270"
-                data-wheelnav-titleheight="45"
+                data-wheelnav-titleheight="30"
                 data-wheelnav-init>
-                <div data-wheelnav-navitemimg="{{url_for('static', filename='/icons/home.svg')}}"><a href="/">Home</a></div>
-                <div data-wheelnav-navitemimg="{{url_for('static', filename='/icons/shopping_cart.svg')}}"><a href="/cart/">Cart</a></div>
-                <div data-wheelnav-navitemimg="{{url_for('static', filename='/icons/login.svg')}}"><a href="/admin-login/">Login</a></div>
+                <div data-wheelnav-navitemimg="{{ url_for('static', filename='icons/home.svg') }}"><a href="/">Home</a></div>
+                <div data-wheelnav-navitemimg="{{ url_for('static', filename='icons/shopping_cart.svg') }}"><a href="/cart/">Cart</a></div>
+                <div data-wheelnav-navitemimg="{{ url_for('static', filename='icons/login.svg') }}"><a href="/admin-login/">Login</a></div>
             </div>
         </nav>
         <main>
             {% block content %}
             {% endblock %}
         </main>
-        <link rel="stylesheet" href="{{url_for('static', filename='/css/style.css')}}">
-        <script src="{{url_for('static', filename='/js/script.js')}}"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     </body>
 </html>

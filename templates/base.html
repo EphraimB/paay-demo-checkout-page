@@ -2,32 +2,28 @@
     <head>
         <title>{% block title %}{% endblock %}</title>
         <link rel="stylesheet" href="{{url_for('static', filename='bootstrap-5.2.0-beta1-dist/css/bootstrap.css')}}">
-        <script src="{{url_for('static', filename='/static/bootstrap-5.2.0-beta1-dist/js/bootstrap.js')}}"></script>
+        <script src="{{url_for('static', filename='/bootstrap-5.2.0-beta1-dist/js/bootstrap.js')}}"></script>
+        <script src="{{url_for('static', filename='/wheelnav.js-1.7.1/raphael.min.js')}}"></script>
+        <script src="{{url_for('static', filename='/wheelnav.js-1.7.1/wheelnav.js')}}"></script>
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg bg-info">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">PAAY</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Cart</a>
-                        </li>
-                    </ul>
-                </div>
+        <nav>
+            <div id="divWheel" data-wheelnav
+                data-wheelnav-colors="#ADD8E6"
+                data-wheelnav-slicepath="DonutSlice"
+                data-wheelnav-navangle="270"
+                data-wheelnav-titleheight="45"
+                data-wheelnav-init>
+                <div data-wheelnav-navitemimg="{{url_for('static', filename='/icons/home.svg')}}"><a href="/">Home</a></div>
+                <div data-wheelnav-navitemimg="{{url_for('static', filename='/icons/shopping_cart.svg')}}"><a href="/cart/">Cart</a></div>
+                <div data-wheelnav-navitemimg="{{url_for('static', filename='/icons/login.svg')}}"><a href="/admin-login/">Login</a></div>
             </div>
         </nav>
         <main>
             {% block content %}
             {% endblock %}
         </main>
-        <link rel="stylesheet" href="static/css/style.css">
+        <link rel="stylesheet" href="{{url_for('static', filename='/css/style.css')}}">
+        <script src="{{url_for('static', filename='/js/script.js')}}"></script>
     </body>
 </html>

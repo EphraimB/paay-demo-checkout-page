@@ -5,6 +5,7 @@
         <script src="{{ url_for('static', filename='bootstrap-5.2.0-beta1-dist/js/bootstrap.js') }}"></script>
         <script src="{{ url_for('static', filename='wheelnav.js-1.8.0/raphael.min.js') }}"></script>
         <script src="{{ url_for('static', filename='wheelnav.js-1.8.0/wheelnav.js') }}"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
       <div class="container">
@@ -17,9 +18,61 @@
                 data-wheelnav-init>
                 <div data-wheelnav-navitemimg="{{ url_for('static', filename='icons/home.svg') }}"><a href="/">Home</a></div>
                 <div data-wheelnav-navitemimg="{{ url_for('static', filename='icons/shopping_cart.svg') }}"><a href="/cart/">Cart</a></div>
-                <div data-wheelnav-navitemimg="{{ url_for('static', filename='icons/login.svg') }}"><a href="/admin-login/">Login</a></div>
             </div>
         </nav>
+        <div id="loginPopup" class="d-none" style="width: 50rem; z-index: 1">
+           <div class="row row-cols-1 row row-cols-lg-2">
+            <div class="col">
+                <h2>Sign in</h2>
+                <form action="login" method="post">
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <input type="password" class="form-control" Placeholder="Password" aria-label="Password">
+                        </div>
+                    </div>
+                    <br>
+                    <input type="submit" value="Log in" class="btn btn-primary">
+                </form>
+            </div>
+            <div class="col">
+                <h2>Sign up</h2>
+                <form action="signup" method="post">
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <input type="password" class="form-control" Placeholder="Password" aria-label="Password">
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <input type="password" class="form-control" Placeholder="Confirm password" aria-label="Confrim password">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <input type="email" class="form-control" Placeholder="Email" aria-label="Email">
+                        </div>
+                    </div>
+                    <br>
+                    <input type="submit" value="Signup" class="btn btn-primary">
+                </div>
+            </form>
+            </div>
+        </div>
         <main>
             {% block content %}
             {% endblock %}

@@ -49,7 +49,11 @@ wheelspreader.onmouseup = function() {
   openSpreader();
 }
 wheelspreadertitle.onmouseup = function() {
-  showLoginPopup()
+  if(loginPopup.className == "d-none") {
+    showLoginPopup()
+  } else {
+    hidePopup()
+  }
   openSpreader();
 }
 

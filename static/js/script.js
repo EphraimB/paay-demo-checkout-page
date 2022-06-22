@@ -41,14 +41,26 @@ var wheelspreader = document.getElementById("wheelnav-divWheel-spreader");
 var wheelspreadertitle = document.getElementById("wheelnav-divWheel-spreadertitle");
 
 wheelspreader.onmouseup = function() {
-  loginPopup.classList.remove("d-none");
-  loginPopup.classList.add("d-flex", "position-absolute", "top-50", "start-50", "translate-middle", "card", "text-bg-light");
+  if(loginPopup.className == "d-none") {
+    showLoginPopup()
+  } else {
+    hidePopup()
+  }
   openSpreader();
 }
 wheelspreadertitle.onmouseup = function() {
+  showLoginPopup()
+  openSpreader();
+}
+
+function showLoginPopup() {
   loginPopup.classList.remove("d-none");
   loginPopup.classList.add("d-flex", "position-absolute", "top-50", "start-50", "translate-middle", "card", "text-bg-light");
-  openSpreader();
+}
+
+function hidePopup() {
+  loginPopup.classList.remove("d-flex", "position-absolute", "top-50", "start-50", "translate-middle", "card", "text-bg-light");
+  loginPopup.classList.add("d-none");
 }
 
 var openSpreader = function() {

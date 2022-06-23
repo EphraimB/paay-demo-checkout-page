@@ -21,13 +21,7 @@
             </div>
         </nav>
         <div id="loginPopup" class="d-none" style="width: 50rem; z-index: 1">
-        {% if loggedIn == True: %}
-        <div class="row">
-            <div class="col">
-                <a class="btn btn-secondary" href="logout/">Logout</a>
-            </div>
-        </div>
-        {% else %}
+        {% if loggedIn == None: %}
            <div class="row row-cols-1 row row-cols-lg-2">
             <div class="col">
                 <h2>Sign in</h2>
@@ -79,6 +73,14 @@
                 </div>
             </form>
         </div>
+        {% else: %}
+        <div class="row">
+            <div class="col">
+                <h2>Your're logged in</h2>
+                <br>
+                <a class="btn btn-secondary" href="logout/">Logout</a>
+            </div>
+        </div>
         {% endif %}
         </div>
         <main>
@@ -86,10 +88,10 @@
             {% endblock %}
         </main>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-        {% if loggedIn == True: %}
-            <script src="{{ url_for('static', filename='js/script.js') }}" icon="imgsrc:/static/icons/logout.svg"></script>
-        {% else: %}
+        {% if loggedIn == None: %}
             <script src="{{ url_for('static', filename='js/script.js') }}" icon="imgsrc:/static/icons/login.svg"></script>
+        {% else: %}
+            <script src="{{ url_for('static', filename='js/script.js') }}" icon="imgsrc:/static/icons/logout.svg"></script>
         {% endif %}
       </div>
     </body>

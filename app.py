@@ -30,6 +30,7 @@ def login():
     results = cursor.fetchall()
 
     for result in results:
+        username = result[1]
         data = result[2]
         role = result[4]
 
@@ -41,9 +42,9 @@ def login():
         account = False
 
     if account == True:
-        session['logged_in'] = True
+        session['logged_in'] = username
     else:
-        session['logged_in'] = False
+        session['logged_in'] = None
     return redirect('/')
 
 @app.route('/signup', methods=['POST'])
@@ -66,8 +67,8 @@ def signup():
 
 @app.route('/logout/')
 def logout():
-  session['logged_in'] = False
-  session['role'] = 0
+  session['logged_in'] = None
+  session['role'] = None
   return redirect('/')
 
 if __name__ == "__main__":

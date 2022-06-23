@@ -33,9 +33,6 @@ def login():
         data = result[2]
         role = result[4]
 
-        print(data)
-        print(role)
-
     session['role'] = role;
 
     if sha256_crypt.verify(password, data):

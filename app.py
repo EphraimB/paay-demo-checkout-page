@@ -26,7 +26,7 @@ def login():
 
     cursor = config.dbUsers.cursor(buffered=True)
 
-    data = cursor.execute('SELECT * FROM Users WHERE username=%s', (username,))
+    data = cursor.execute('SELECT * FROM Users LEFT JOIN Roles ON Users.RoleId = Roles.RoleId WHERE username=%s', (username,))
     data = cursor.fetchone()[2]
 
     if sha256_crypt.verify(password, data):

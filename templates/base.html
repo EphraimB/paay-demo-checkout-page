@@ -72,7 +72,6 @@
                     <input type="submit" value="Signup" class="btn btn-primary">
                 </div>
             </form>
-            </div>
         </div>
         {% else: %}
         <div class="row">
@@ -87,7 +86,11 @@
             {% endblock %}
         </main>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        {% if loggedIn == False: %}
+            <script src="{{ url_for('static', filename='js/script.js') }}" icon="imgsrc:/static/icons/login.svg"></script>
+        {% else: %}
+            <script src="{{ url_for('static', filename='js/script.js') }}" icon="imgsrc:/static/icons/logout.svg"></script>
+        {% endif %}
       </div>
     </body>
 </html>

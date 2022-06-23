@@ -15,7 +15,7 @@ def index():
 
     rows = cursor.fetchall()
 
-    return render_template('index.html', products = rows, loggedIn = session.get('logged_in'))
+    return render_template('index.html', products = rows, loggedIn = session.get('logged_in'), role = session.get('role'))
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -28,6 +28,9 @@ def login():
 
     data = cursor.execute('SELECT * FROM Users LEFT JOIN Roles ON Users.RoleId = Roles.RoleId WHERE username=%s', (username,))
     data = cursor.fetchone()[2]
+    role = cursor.fetchone()[4]
+
+    session['role'] = role;
 
     if sha256_crypt.verify(password, data):
         account = True

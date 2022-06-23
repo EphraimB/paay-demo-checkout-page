@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
+{% if role == 1: %}
+  <button type="button" class="btn btn-success"><img style="fill: white;" src="{{ url_for('static', filename='icons/add.svg') }}"></button>
+{% endif %}
   <div class="row row-cols-1 row-cols-md-2 g-4 m-3">
     {% for product in products %}
       <div class="col">

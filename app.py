@@ -67,6 +67,7 @@ def signup():
 @app.route('/logout/')
 def logout():
   session['logged_in'] = False
+  session['role'] = 0
   return redirect('/')
 
 if __name__ == "__main__":

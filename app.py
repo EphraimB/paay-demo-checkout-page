@@ -38,7 +38,7 @@ def login():
         session['logged_in'] = True
     else:
         session['logged_in'] = False
-    return index()
+    return redirect('/')
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -61,7 +61,7 @@ def signup():
 @app.route('/logout/')
 def logout():
   session['logged_in'] = False
-  return index()
+  return redirect('/')
 
 if __name__ == "__main__":
   app.run(debug=True,host='0.0.0.0', port=5000)

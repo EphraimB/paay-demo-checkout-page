@@ -54,16 +54,17 @@ def signup():
     username = signup['username']
     password = sha256_crypt.encrypt(signup['password'])
     email = signup['email']
+    roleId = 0
 
     cursor = config.dbUsers.cursor(buffered=True)
 
-    cursor.execute('INSERT INTO Users (username, password, email) VALUES (%s, %s, %s)', (username, password, email))
+    cursor.execute('INSERT INTO Users (username, password, email, RoleId) VALUES (%s, %s, %s, %s)', (username, password, email, roleId))
 
     config.dbUsers.commit()
 
     cursor.close()
 
-    return index()
+    return redirect('/')
 
 @app.route('/logout/')
 def logout():

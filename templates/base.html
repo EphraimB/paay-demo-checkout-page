@@ -21,6 +21,7 @@
             </div>
         </nav>
         <div id="loginPopup" class="d-none" style="width: 50rem; z-index: 1">
+        {% if loggedIn == False: %}
            <div class="row row-cols-1 row row-cols-lg-2">
             <div class="col">
                 <h2>Sign in</h2>
@@ -28,13 +29,13 @@
                     <div class="row justify-content-center">
                         <div class="col-auto">
                             <div class="input-group mb-3">
-                                <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                                <input type="text" class="form-control" name="username" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
                             </div>
                         </div>
                     </div>
                     <div class="row justify-content-center">
                         <div class="col-auto">
-                            <input type="password" class="form-control" Placeholder="Password" aria-label="Password">
+                            <input type="password" class="form-control" name="password" Placeholder="Password" aria-label="Password">
                         </div>
                     </div>
                     <br>
@@ -47,24 +48,24 @@
                     <div class="row justify-content-center">
                         <div class="col-auto">
                             <div class="input-group mb-3">
-                                <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                                <input type="text" class="form-control" placeholder="Username" name="username" aria-label="Username" aria-describedby="basic-addon1">
                             </div>
                         </div>
                     </div>
                     <div class="row justify-content-center">
                         <div class="col-auto">
-                            <input type="password" class="form-control" Placeholder="Password" aria-label="Password">
+                            <input type="password" class="form-control" placeholder="Password" name="password" aria-label="Password">
                         </div>
                     </div>
                     <div class="row justify-content-center">
                         <div class="col-auto">
-                            <input type="password" class="form-control" Placeholder="Confirm password" aria-label="Confrim password">
+                            <input type="password" class="form-control" placeholder="Confirm password" aria-label="Confrim password">
                         </div>
                     </div>
                     <br>
                     <div class="row justify-content-center">
                         <div class="col-auto">
-                            <input type="email" class="form-control" Placeholder="Email" aria-label="Email">
+                            <input type="email" class="form-control" placeholder="Email" name="email" aria-label="Email">
                         </div>
                     </div>
                     <br>
@@ -72,6 +73,14 @@
                 </div>
             </form>
             </div>
+        </div>
+        {% else: %}
+        <div class="row">
+            <div class="col">
+                <a class="btn btn-secondary" href="logout/">Logout</a>
+            </div>
+        </div>
+        {% endif %}
         </div>
         <main>
             {% block content %}

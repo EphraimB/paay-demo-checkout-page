@@ -26,9 +26,15 @@ def login():
 
     cursor = config.dbUsers.cursor(buffered=True)
 
-    data = cursor.execute('SELECT * FROM Users LEFT JOIN Roles ON Users.RoleId = Roles.RoleId WHERE username=%s', (username,))
-    data = cursor.fetchone()[2]
-    role = cursor.fetchone()[4]
+    results = cursor.execute('SELECT * FROM Users LEFT JOIN Roles ON Users.RoleId = Roles.RoleId WHERE username=%s', (username,))
+    results = cursor.fetchall()
+
+    for result in results:
+        data = result[2]
+        role = result[4]
+
+        print(data)
+        print(role)
 
     session['role'] = role;
 

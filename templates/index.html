@@ -32,11 +32,11 @@
   <div class="row row-cols-1 row-cols-md-2 g-4 m-3">
     {% for product in products %}
       <div class="col">
-        <a href="checkout.html">
+        <a href="checkout.html?productId={{ product[0] }}">
           <div class="card text-bg-success">
             <div class="card-body text-center">
-              <h5 class="card-title">{{product[1]}}</h5>
-              <p class="card-text">{{product[2]}}</p>
+              <h5 class="card-title">{{ product[1] }}</h5>
+              <p class="card-text">{{ product[2] }}</p>
             </div>
           </div>
         </a>

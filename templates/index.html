@@ -2,13 +2,13 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 {% if role == 1: %}
-  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal"><img style="fill: white;" src="{{ url_for('static', filename='icons/add.svg') }}"></button>
+  <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProductModal"><img style="fill: white;" src="{{ url_for('static', filename='icons/add.svg') }}"></button>
   <!-- Modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <h5 class="modal-title" id="addProductModalLabel">Modal title</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <form action="addProduct" method="post">

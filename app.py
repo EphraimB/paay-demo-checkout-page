@@ -66,6 +66,23 @@ def signup():
 
     return redirect('/')
 
+@app.route('/addProduct', methods=['POST'])
+def addProduct():
+    addProduct = request.form
+    
+    productTitle = addProduct['productTitle']
+    productDescription = addProduct['productDescription']
+
+    cursor = config.dbPAAY.cursor(buffered=True)
+
+    cursor.execute('INSERT INTO products (productTitle, productDescription) VALUES (%s, %s)', (productTitle, productDescription))
+
+    config.dbPAAY.commit()
+
+    cursor.close()
+
+    return redirect('/')
+
 @app.route('/logout/')
 def logout():
   session['logged_in'] = None
@@ -73,7 +90,7 @@ def logout():
   return redirect('/')
 
 if __name__ == "__main__":
-  app.run(debug=True,host='0.0.0.0', port=5000)
+  app.run(debug=True, host='0.0.0.0', port=5000)
 
 if __name__ == "app":
     app.secret_key = os.urandom(12)

@@ -83,6 +83,17 @@ def addProduct():
 
     return redirect('/')
 
+@app.route('/checkout/index.html', methods=['GET'])
+def checkout():
+    productId = request.args.get('productId')
+
+    cursor = config.dbPAAY.cursor(buffered=True)
+
+    product = cursor.execute('SELECT * FROM products WHERE productID=%s', (productId,))
+    product = cursor.fetchall()
+
+    return render_template('checkout/index.html', products = product, loggedIn = session.get('logged_in'), role = session.get('role'))
+
 @app.route('/logout/')
 def logout():
   session['logged_in'] = None

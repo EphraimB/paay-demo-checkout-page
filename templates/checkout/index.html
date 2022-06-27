@@ -1,13 +1,83 @@
 {% extends "base.html" %}
 {% block title %}Checkout{% endblock %}
 {% block content %}
-    <div class="row row-cols-1 row-cols-md-2 g-4 m-3">
-    <div class="col">
-        <div class="card text-bg-success">
-            <div class="card-body text-center">
-              <h5 class="card-title">{{ product[1] }}</h5>
-              <p class="card-text">{{ product[2] }}</p>
-            </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <h2>{{ product[1] }}</h2>
+            <p>{{ product[2] }}</p>
+            <p>${{ product[5] }}</p>
         </div>
-    </div>
-{% endblock %}
+        <div class="col-lg-6">
+            <form id="billing-form" action="addToCart" method="post">
+                <h4 class="mb-3">Payment</h4>
+                <div class="row payment">
+                    <div class="col-md-6 mb-3">
+                        <label for="cc-name">Name on card</label>
+                        <input type="text" class="form-control" id="cc-name" placeholder="" required="" control-id="ControlID-3">
+                        <small class="text-muted">Full name as displayed on card</small>
+                        <div class="invalid-feedback">
+                            Name on card is required
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="cc-number">Credit card number</label>
+                        <input type="password" class="form-control" id="cc-number" data-descrip="CC Number" data-threeds="pan" placeholder="" required="" control-id="ControlID-4">
+                        <div class="invalid-feedback">
+                            Credit card number is required
+                        </div>
+                    </div>
+                </div>
+                <div class="row payment">
+                    <div class="col-md-6 mb-6">
+                        <label for="cc-expiration">Expiration</label>
+                        <div class="row">
+                            <div class="col-md-6 mb-6" style="padding-right: 6px">
+                                <select class="custom-select d-block w-100" id="cc-expiration-month" data-descrip="Exp month" data-threeds="month" placeholder="" required="" control-id="ControlID-5">
+                                    <option value=""></option>
+                                    <option value="01">January</option>
+                                    <option value="02">February </option>
+                                    <option value="03">March</option>
+                                    <option value="04">April</option>
+                                    <option value="05">May</option>
+                                    <option value="06">June</option>
+                                    <option value="07">July</option>
+                                    <option value="08">August</option>
+                                    <option value="09">September</option>
+                                    <option value="10">October</option>
+                                    <option value="11">November</option>
+                                    <option value="12">December</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-6" style="padding-left: 6px">
+                                <select class="custom-select d-block w-100" id="cc-expiration-year" data-descrip="Exp year" data-threeds="year" placeholder="" required="" control-id="ControlID-6">
+                                    <option value=""> </option>
+                                    <option value="19"> 2019</option>
+                                    <option value="20"> 2020</option>
+                                    <option value="21"> 2021</option>
+                                    <option value="22"> 2022</option>
+                                    <option value="23"> 2023</option>
+                                    <option value="24"> 2024</option>
+                                    <option value="25"> 2025</option>
+                                    <option value="26"> 2026</option>
+                                    <option value="27"> 2027</option>
+                                    <option value="28"> 2028</option>
+                                    <option value="29"> 2029</option>
+                                    <option value="30"> 2030</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="invalid-feedback">
+                            Expiration date required
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="cc-expiration">CVV</label>
+                        <input type="text" class="form-control" id="cc-cvv" placeholder="" required="" control-id="ControlID-7">
+                        <div class="invalid-feedback">
+                            Security code required
+                        </div>
+                    </div>
+                </div>
+                </form>
+            </div>
+        {% endblock %}

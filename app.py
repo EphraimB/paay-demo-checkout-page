@@ -72,10 +72,11 @@ def addProduct():
     
     productTitle = addProduct['productTitle']
     productDescription = addProduct['productDescription']
+    productPrice = addProduct['productPrice']
 
     cursor = config.dbPAAY.cursor(buffered=True)
 
-    cursor.execute('INSERT INTO products (productTitle, productDescription) VALUES (%s, %s)', (productTitle, productDescription))
+    cursor.execute('INSERT INTO products (productTitle, productDescription, price) VALUES (%s, %s, %s)', (productTitle, productDescription, productPrice))
 
     config.dbPAAY.commit()
 
@@ -92,7 +93,7 @@ def checkout():
     product = cursor.execute('SELECT * FROM products WHERE productID=%s', (productId,))
     product = cursor.fetchall()
 
-    return render_template('checkout/index.html', products = product, loggedIn = session.get('logged_in'), role = session.get('role'))
+    return render_template('checkout/index.html', product = product[0], loggedIn = session.get('logged_in'), role = session.get('role'))
 
 @app.route('/logout/')
 def logout():

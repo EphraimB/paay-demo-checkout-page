@@ -30,6 +30,7 @@ def login():
     results = cursor.fetchall()
 
     for result in results:
+        userId = result[0]
         username = result[1]
         data = result[2]
         role = result[4]
@@ -42,10 +43,10 @@ def login():
         account = False
 
     if account == True:
-        session['logged_in'] = username
+        session['logged_in'] = userId
     else:
         session['logged_in'] = None
-    return redirect('/')
+    return redirect(url_for("index"))
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -84,13 +85,30 @@ def addProduct():
 
     return redirect(url_for("index"))
 
-@app.route('/checkout/index.html', methods=['GET'])
-def checkout():
-    productId = request.args.get('productId')
+@app.route('/addToCart')
+def addToCart():
+    userId = session.get('logged_in')
+    productId = request.args.get("productId")
 
     cursor = config.dbPAAY.cursor(buffered=True)
 
-    product = cursor.execute('SELECT * FROM products WHERE productID=%s', (productId,))
+    cursor.execute('INSERT INTO cart (ProductId, UserId, Quantity) VALUES (%s, %s, %s)', (productId, userId, 1))
+
+    config.dbPAAY.commit()
+
+    cursor.close()
+
+    return redirect(url_for("index"))
+
+    return
+
+@app.route('/checkout/', methods=['GET'])
+def checkout():
+    userId = session.get('logged_in')
+
+    cursor = config.dbPAAY.cursor(buffered=True)
+
+    product = cursor.execute('SELECT * FROM paay.cart t1 JOIN paay.products t2 ON t1.ProductId = t2.ProductId JOIN Users.Users t3 ON t1.UserId = t3.uid WHERE t1.userId=%s', (userId,))
     product = cursor.fetchall()
 
     return render_template('checkout/index.html', product = product[0], loggedIn = session.get('logged_in'), role = session.get('role'))

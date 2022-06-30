@@ -7,6 +7,12 @@ from app import config
 import os
 import operator
 
+sum = 0
+
+def addSum(num):
+    sum += num
+    return sum
+
 @app.route('/')
 def index():
     cursor = config.dbPAAY.cursor()
@@ -108,10 +114,10 @@ def checkout():
 
     cursor = config.dbPAAY.cursor(buffered=True)
 
-    product = cursor.execute('SELECT * FROM paay.cart t1 JOIN paay.products t2 ON t1.ProductId = t2.ProductId JOIN Users.Users t3 ON t1.UserId = t3.uid WHERE t1.userId=%s', (userId,))
-    product = cursor.fetchall()
+    products = cursor.execute('SELECT * FROM paay.cart t1 JOIN paay.products t2 ON t1.ProductId = t2.ProductId JOIN Users.Users t3 ON t1.UserId = t3.uid WHERE t1.userId=%s', (userId,))
+    products = cursor.fetchall()
 
-    return render_template('checkout/index.html', product = product[0], loggedIn = session.get('logged_in'), role = session.get('role'))
+    return render_template('checkout/index.html', sum = sum, products = products, loggedIn = session.get('logged_in'), role = session.get('role'))
 
 @app.route('/logout/')
 def logout():

@@ -7,12 +7,6 @@ from app import config
 import os
 import operator
 
-sum = 0
-
-def addSum(num):
-    sum += num
-    return sum
-
 @app.route('/')
 def index():
     cursor = config.dbPAAY.cursor()
@@ -110,6 +104,12 @@ def addToCart():
 
 @app.route('/checkout/', methods=['GET'])
 def checkout():
+    sum = 0
+
+    def addSum(num):
+        sum += num
+        return sum
+
     userId = session.get('logged_in')
 
     cursor = config.dbPAAY.cursor(buffered=True)

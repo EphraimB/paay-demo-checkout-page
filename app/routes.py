@@ -1,11 +1,11 @@
-from flask import Flask, flash, redirect, render_template, request, session, abort
+from app import app
+from flask import redirect, render_template, request, session, url_for
 from passlib.hash import sha256_crypt
+from flask_login import current_user, login_user
 import datetime
-import config
+from app import config
 import os
 import operator
-
-app = Flask(__name__)
 
 @app.route('/')
 def index():
@@ -34,7 +34,7 @@ def login():
         data = result[2]
         role = result[4]
 
-    session['role'] = role;
+    session['role'] = role
 
     if sha256_crypt.verify(password, data):
         account = True
@@ -64,7 +64,7 @@ def signup():
 
     cursor.close()
 
-    return redirect('/')
+    return redirect(url_for("index"))
 
 @app.route('/addProduct', methods=['POST'])
 def addProduct():
@@ -82,7 +82,7 @@ def addProduct():
 
     cursor.close()
 
-    return redirect('/')
+    return redirect(url_for("index"))
 
 @app.route('/checkout/index.html', methods=['GET'])
 def checkout():
@@ -99,10 +99,4 @@ def checkout():
 def logout():
   session['logged_in'] = None
   session['role'] = None
-  return redirect('/')
-
-if __name__ == "__main__":
-  app.run(debug=True, host='0.0.0.0', port=5000)
-
-if __name__ == "app":
-  app.secret_key = os.urandom(12)
+  return redirect(url_for("index"))

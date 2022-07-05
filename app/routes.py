@@ -104,12 +104,6 @@ def addToCart():
 
 @app.route('/checkout/', methods=['GET'])
 def checkout():
-    sum = 0
-
-    def addSum(num):
-        sum += num
-        return sum
-
     userId = session.get('logged_in')
 
     cursor = config.dbPAAY.cursor(buffered=True)
@@ -117,7 +111,10 @@ def checkout():
     products = cursor.execute('SELECT * FROM paay.cart t1 JOIN paay.products t2 ON t1.ProductId = t2.ProductId JOIN Users.Users t3 ON t1.UserId = t3.uid WHERE t1.userId=%s', (userId,))
     products = cursor.fetchall()
 
-    return render_template('checkout/index.html', sum = sum, products = products, loggedIn = session.get('logged_in'), role = session.get('role'))
+    productsSum = cursor.execute('SELECT SUM(price) AS price FROM paay.cart t1 JOIN paay.products t2 ON t1.ProductId = t2.ProductId JOIN Users.Users t3 ON t1.UserId = t3.uid WHERE t1.userId=%s', (userId,))
+    productsSum = cursor.fetchone()[0]
+
+    return render_template('checkout/index.html', products = products, sum = productsSum, loggedIn = session.get('logged_in'), role = session.get('role'))
 
 @app.route('/logout/')
 def logout():

@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-{% if loggedIn != None: %}
 {% if role == 1: %}
   <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProductModal"><img style="fill: white;" src="{{ url_for('static', filename='icons/add.svg') }}"></button>
   <!-- Modal -->
@@ -36,7 +35,9 @@
   <div class="row row-cols-1 row-cols-md-2 g-4 m-3">
     {% for product in products %}
       <div class="col">
-        <a href="addToCart?productId={{ product[0] }}">
+        {% if loggedIn != None: %}
+          <a href="addToCart?productId={{ product[0] }}">
+        {% endif %}
           <div class="card text-bg-success">
             <div class="card-body text-center">
               <h5 class="card-title">{{ product[1] }}</h5>
@@ -48,8 +49,4 @@
       </div>
     {% endfor %}
   </div>
-
-{% else %}
-<p>Please login</p>
-{% endif %}
 {% endblock %}

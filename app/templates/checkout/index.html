@@ -21,11 +21,11 @@
                 <h6 class="my-0">Promo code</h6>
                 <small>EXAMPLECODE</small>
               </div>
-              <span class="text-success">-${{ "{:.2f}".format(5) }}</span>
+              <span class="text-success">-${{ "{:.2f}".format(1) if (sum > 0) else "{:.2f}".format(0) }}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <span>Total (USD)</span>
-              <strong>${{ "{:.2f}".format(sum - 5) }}</strong>
+              <strong>${{ "{:.2f}".format(sum - 1) if (sum > 0) else "{:.2f}".format(0) }}</strong>
             </li>
           </ul>
         </div>

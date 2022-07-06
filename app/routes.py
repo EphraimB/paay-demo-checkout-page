@@ -110,6 +110,10 @@ def checkout():
 
     productsSum = cursor.execute('SELECT SUM(price) AS price FROM paay.cart t1 JOIN paay.products t2 ON t1.ProductId = t2.ProductId JOIN Users.Users t3 ON t1.UserId = t3.uid WHERE t1.userId=%s', (userId,))
     productsSum = cursor.fetchone()[0]
+
+    if (productsSum == None):
+        productsSum = 0
+        
     if (session.get('logged_in') == None):
         return redirect(url_for("index"))
     else:

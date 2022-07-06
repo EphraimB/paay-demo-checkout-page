@@ -113,11 +113,14 @@ def checkout():
 
     productsSum = cursor.execute('SELECT SUM(price) AS price FROM paay.cart t1 JOIN paay.products t2 ON t1.ProductId = t2.ProductId JOIN Users.Users t3 ON t1.UserId = t3.uid WHERE t1.userId=%s', (userId,))
     productsSum = cursor.fetchone()[0]
-
-    return render_template('checkout/index.html', products = products, sum = productsSum, loggedIn = session.get('logged_in'), role = session.get('role'))
+    if (session.get('logged_in') == None):
+        return redirect(url_for("index"));
+    else:
+        return render_template('checkout/index.html', products = products, sum = productsSum, loggedIn = session.get('logged_in'), role = session.get('role'))
 
 @app.route('/logout/')
 def logout():
   session['logged_in'] = None
   session['role'] = None
+
   return redirect(url_for("index"))

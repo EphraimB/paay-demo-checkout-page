@@ -97,8 +97,6 @@ def addToCart():
 
     return redirect(url_for("index"))
 
-    return
-
 @app.route('/checkout/', methods=['GET'])
 def checkout():
     userId = session.get('logged_in')
@@ -113,11 +111,24 @@ def checkout():
 
     if (productsSum == None):
         productsSum = 0
-        
+
     if (session.get('logged_in') == None):
         return redirect(url_for("index"))
     else:
         return render_template('checkout/index.html', products = products, sum = productsSum, loggedIn = session.get('logged_in'), role = session.get('role'))
+
+@app.route('/checkout/delete/')
+def deleteItem():
+    cartId = request.args.get("id")
+
+    cursor = config.dbPAAY.cursor(buffered=True)
+    cursor.execute('DELETE FROM cart WHERE CartId=%s', (cartId,))
+
+    config.dbPAAY.commit()
+
+    cursor.close()
+
+    return redirect(url_for("checkout"))
 
 @app.route('/logout/')
 def logout():

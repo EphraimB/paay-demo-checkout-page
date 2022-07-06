@@ -35,17 +35,14 @@ def login():
         data = result[2]
         role = result[4]
 
-    session['role'] = role
-
     if sha256_crypt.verify(password, data):
         account = True
+        session['logged_in'] = userId
+        session['role'] = role
     else:
         account = False
-
-    if account == True:
-        session['logged_in'] = userId
-    else:
         session['logged_in'] = None
+    print(account)
     return redirect(url_for("index"))
 
 @app.route('/signup', methods=['POST'])
@@ -114,7 +111,7 @@ def checkout():
     productsSum = cursor.execute('SELECT SUM(price) AS price FROM paay.cart t1 JOIN paay.products t2 ON t1.ProductId = t2.ProductId JOIN Users.Users t3 ON t1.UserId = t3.uid WHERE t1.userId=%s', (userId,))
     productsSum = cursor.fetchone()[0]
     if (session.get('logged_in') == None):
-        return redirect(url_for("index"));
+        return redirect(url_for("index"))
     else:
         return render_template('checkout/index.html', products = products, sum = productsSum, loggedIn = session.get('logged_in'), role = session.get('role'))
 

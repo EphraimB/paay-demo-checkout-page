@@ -32,6 +32,7 @@
         </div>
         <div class="col-md-9">
             <form id="billing-form" action="addToCart" method="post">
+                <input type="hidden" id="amount" name="amount" value="{{ sum - 1 if (sum > 0) else 0 }}" data-threeds="amount" />
                 <h4 class="mb-3">Payment</h4>
                 <div class="row payment">
                     <div class="col-md-6 mb-3">
@@ -216,4 +217,21 @@
             </form>
         </div>
     </div>
+    <script src="https://cdn.3dsintegrator.com/threeds.2.min.latest.js"></script>
+    <script>
+     // Instantiate the ThreeDS class from the library
+      const tds = new ThreeDS(
+        // Provide your form ID DOM element name
+        "billing-form",
+        // Provide your unique API key for your account
+        "{{ apiKey }}",
+        // Pass null to indicate the SDK to generate a JWT on our end, or pass your own
+        null,
+        {
+          // Point to sandbox environment during integration  
+          endpoint: "https://api-sandbox.3dsintegrator.com/v2",  
+          // Set verbose to true to help print all logs to help debug during integration  
+          verbose: true
+        });
+    </script>
     {% endblock %}

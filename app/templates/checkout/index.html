@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Checkout{% endblock %}
 {% block content %}
+    <div id="console" class="card">
+        <div class="card-header">
+          3DS Console
+        </div>
+        <div class="card-body">
+          <p>Waiting for data...</p>
+        </div>
+    </div>
     <div class="row">
     <div class="col-md-3 order-md-2 mb-4">
           <h4 class="d-flex justify-content-between align-items-center mb-3">
@@ -40,7 +48,12 @@
         </div>
         <div class="col-md-9">
             <form id="billing-form" action="addToCart" method="post">
-                <input type="hidden" id="amount" name="amount" value="{{ sum - 1 if (sum > 0) else 0 }}" data-threeds="amount" />
+                <input type="hidden" value="" data-threeds="id">
+                {% if sum > 1: %}
+                    <input type="hidden" id="amount" name="amount" value="{{ sum - 1 }}" data-threeds="amount" />
+                {% else: %}
+                    <input type="hidden" id="amount" name="amount" value="{{ sum }}" data-threeds="amount" />
+                {% endif %}
                 <h4 class="mb-3">Payment</h4>
                 <div class="row payment">
                     <div class="col-md-6 mb-3">
@@ -225,21 +238,7 @@
             </form>
         </div>
     </div>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
     <script src="https://cdn.3dsintegrator.com/threeds.2.min.latest.js"></script>
-    <script>
-     // Instantiate the ThreeDS class from the library
-      const tds = new ThreeDS(
-        // Provide your form ID DOM element name
-        "billing-form",
-        // Provide your unique API key for your account
-        "{{ apiKey }}",
-        // Pass null to indicate the SDK to generate a JWT on our end, or pass your own
-        null,
-        {
-          // Point to sandbox environment during integration  
-          endpoint: "https://api-sandbox.3dsintegrator.com/v2",  
-          // Set verbose to true to help print all logs to help debug during integration  
-          verbose: true
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/checkout.js') }}"></script>
     {% endblock %}

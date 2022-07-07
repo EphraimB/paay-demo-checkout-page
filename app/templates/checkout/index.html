@@ -48,6 +48,7 @@
         </div>
         <div class="col-md-9">
             <form id="billing-form" action="addToCart" method="post">
+                <input type="hidden" value="{{ apiKey }}" id="apiKey">
                 <input type="hidden" value="" data-threeds="id">
                 {% if sum > 1: %}
                     <input type="hidden" id="amount" name="amount" value="{{ sum - 1 }}" data-threeds="amount" />

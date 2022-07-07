@@ -2,9 +2,8 @@ var id = document.querySelector('[data-threeds=id]');
 var uniqueId = function() {
     return 'id-' + Math.random().toString(36).substr(2, 16);
 };
-id.value = uniqueId();
 
-var tds = new ThreeDS("billing-form", "{{ apiKey }}",null,{verbose:true});
+var tds = new ThreeDS("billing-form", document.getElementById("apiKey").value, null, {verbose:true});
 var nResponse = function(nResponse){
     $("#console").find("div.card-body").append("<p>User got prompted. Card has NOT been authenticated!</p>")
     $("div.modal-body").append("<p>Card has could not been authenticated. For best results please use a Visa or Mastercard Rewards card.</p>")

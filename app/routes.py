@@ -138,3 +138,7 @@ def logout():
   session['role'] = None
 
   return redirect(url_for("index"))
+
+@app.route('/phoneCheckout/')
+def phoneCheckout():
+    pass

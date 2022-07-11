@@ -48,7 +48,23 @@
           <div style="height: 50px;" class="row" id="checkoutPhoneNumber">
                 <img src="{{ url_for('static', filename='img/logo.png') }}" id="checkoutPhoneNumberImg" class="col-2">
                 <input type="text" id="checkoutPhoneNumberInput" name="checkoutPhoneNumberInput" class="col-8 text-center" placeholder="Phone number" control-id="ControlID-9">
-                <button style="background-color: #1ca4dd;" class="col-2 border-0 text-white" data-toggle="modal" data-target="#exampleModalCenter" type="submit" control-id="ControlID-10">Go</button>
+                <button style="background-color: #1ca4dd;" class="col-2 border-0 text-white" data-toggle="modal" data-target="#exampleModalCenter" type="button" control-id="ControlID-10">Go</button>
+          </div>
+        </div>
+        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" style="display: none" aria-hidden="true" style="display: block;">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content modal-popup-bg" style="background-image: url('{{ url_for('static', filename='img/popup.png') }}'); background-repeat: no-repeat; background-size: 110% 125%; background-position: center;">
+                <div class="modal-header border-0">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span style="color: white;" aria-hidden="true">×</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <img style="display: block; margin-left: auto; margin-right: auto; width: 150px;" src="{{ url_for('static', filename='img/logoTransparent.png') }}" width="150px">
+                  <p style="color: white; text-align: center;">Because no fraud is friendly</p>
+                  <!--<iframe src="" name="my_iframe" id="phoneCheckout" width="100%" class="border-0"></iframe>-->
+                </div>
+            </div>
           </div>
         </div>
         <div class="col-md-9">
@@ -245,6 +261,8 @@
         </div>
     </div>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+{% endblock %}
+{% block scripts %}
     <script src="https://cdn.3dsintegrator.com/threeds.2.min.latest.js"></script>
     <script src="{{ url_for('static', filename='js/checkout.js') }}"></script>
-    {% endblock %}
+{% endblock %}

@@ -6,6 +6,7 @@ import datetime
 from app import config
 import os
 import operator
+from app import firebase;
 
 @app.route('/')
 def index():
@@ -139,6 +140,14 @@ def logout():
 
   return redirect(url_for("index"))
 
-@app.route('/phoneCheckout/')
+@app.route('/checkout/phoneCheckout/', methods=['POST'])
 def phoneCheckout():
-    pass
+    # phoneNumber = request.form["checkoutPhoneNumberInput"]
+
+    users_ref = firebase.db.collection(u'PAAY')
+    docs = users_ref.stream()
+
+    for doc in docs:
+        print(f'{doc.phoneNumber} => {doc.to_dict()}')
+
+    return render_template('checkout/phoneCheckout/index.html')
